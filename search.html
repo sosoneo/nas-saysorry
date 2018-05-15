@@ -123,7 +123,7 @@
             $('#searchBox').show();
             $("#content").text(result.content);
             $('#sender').text("By " + result.sender);
-            $('#recipient').text("To "result.recipient + ":");
+            $('#recipient').text("To " + result.recipient + ":");
 
         }).catch(function (err) {
             console.log("error :" + err.message);
