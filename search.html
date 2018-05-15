@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5, user-scalable=no">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="full-screen" content="yes">
+
+    <link rel="shortcut icon" href="image/sorry.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="image/sorry.ico" type="image/vnd.microsoft.icon" />
+    <title>搜索——对不起留言板——在区块链中记录你再也无法说出口的对不起</title>
+    <link rel="stylesheet" href="lib/bootstrap-4.0.0-dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <a class="navbar-brand" href="./index.html">对不起留言板</a>
+        <ul class="nav nav-pills">
+            <li>
+                <a href="./search.html">
+                    <button type="button" class="btn btn-primary mr-2">搜索</button>
+                </a>
+            </li>
+            <li>
+                <a href="./history.html">
+                    <button type="button" class="btn btn-primary mr-2">历史</button>
+                </a>
+            </li>
+            <li>
+                <a href="https://blog.mouxuezha.com/" target="_blank">
+                    <button type="button" class="btn btn-primary mr-2">关于我们</button>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div>
+        <div class="noExtension d-none" id="noExtension">
+            请先安装 
+            <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a> 
+        </div>
+        <div class="ml-5 mt-3 mr-5">
+                <div id="searchBox" class="mt-1 pt-2 pb-2 pl-3 pr-3 bg-primary text-white" style="display: none;">
+                    <p id="recipient" style="float: left;"></p><br>
+                    <p id="content" style="float: center;"></p>
+                    <p id="sender" style="float: right;"></p><br> 
+                </div>
+                <hr>
+                <div class="mb-5">
+                    <div class="form-group row mt-3">
+                        <label for="inputSender" class="col-sm-2 col-form-label">道歉者的名字: </label>
+                        <div class="col-sm-10">
+                            <input type="text" maxlength="50"class="form-control" id="inputSender" placeholder="道歉者的名字">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-3">
+                        <label for="inputRecipient" class="col-sm-2 col-form-label">被道歉者的名字: </label>
+                        <div class="col-sm-10">
+                            <input type="text" maxlength="50"class="form-control" id="inputRecipient" placeholder="被道歉者的名字">
+                        </div>
+                    </div>
+                    <button type="button" id="submit" onclick="submitHandler()" class="btn btn-primary float-right">搜索</button>
+                </div>
+
+            </div>
+    </div>
+<script src=lib/jquery-3.3.1.min.js></script>
+<script src=lib/nebPay.js></script>
+<script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+<script src=lib/nebulas.js></script>
+<script>
+
+    "use strict";
+
+    var dappContactAddress = "n1eD3DR6XCWRjuq8jXkrYJcmsGTgmzATVWE";
+
+    //here we use neb.js to call the "get" function to search from the Dictionary
+    var nebulas = require("nebulas"),
+        Account = nebulas.Account,
+        neb = new nebulas.Neb();
+    neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+
+    var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
+    var nebPay = new NebPay();
+
+    function submitHandler() {
+        if ($("#inputSender").val().length === 0) {
+            alert("Please input your name!");
+        } else if ($("#inputRecipient").val().length === 0) {
+            alert("Please input other name!")
+        } else if ($("#inputSender").val().length > 100) {
+            alert("Your name limit 100!")
+        } else if ($("#inputRecipient").val().length > 100) {
+            alert("Other name limit 100!")
+        } else {
+            $('#content').text("");
+            var from = dappContactAddress
+            var value = "0";
+            var nonce = "0"
+            var gas_price = "1000000"
+            var gas_limit = "2000000"
+            var callFunction = "get";
+            var callArgs = "[\"" + $("#inputSender").val() + "\",\"" + $("#inputRecipient").val() + "\"]";
+            console.log(callArgs);
+            var contract = {
+                "function": callFunction,
+                "args": callArgs
+            }
+
+            neb.api.call(from, dappContactAddress, value, nonce, gas_price, gas_limit, contract).then(function (resp) {
+            var result = resp.result;
+            
+            if (result === 'null') {
+                $('#searchBox').show();
+                $('#content').text("并没有找到该内容");
+                $('#sender').text("");
+                $('#recipient').text("");
+                return;
+            }
+            console.log(result);
+            result = JSON.parse(result);
+            $('#searchBox').show();
+            $("#content").text(result.content);
+            $('#sender').text("By " + result.sender);
+            $('#recipient').text("To "result.recipient + ":");
+
+        }).catch(function (err) {
+            console.log("error :" + err.message);
+
+        })
+        }
+    }
+
+</script>
+</body>
+
+</html>

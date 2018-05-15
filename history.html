@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5, user-scalable=no">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="full-screen" content="yes">
+
+    <link rel="shortcut icon" href="image/sorry.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="image/sorry.ico" type="image/vnd.microsoft.icon" />
+    <title>历史——对不起留言板——在区块链中记录你再也无法说出口的对不起</title>
+    <link rel="stylesheet" href="lib/bootstrap-4.0.0-dist/css/bootstrap.min.css">
+        <script>
+        function updatePage(resp) {
+            var result = resp.result;
+            var resultArray = JSON.parse(result);
+            resultArray.reverse();
+            if (resultArray.length > 0) {
+                $("#message0").html(returnInsertHTML(resultArray[0].author, resultArray[0].sender, resultArray[0].recipient, resultArray[0].content));
+            }
+            if (resultArray.length > 1) {
+                $("#message1").html(returnInsertHTML(resultArray[1].author, resultArray[1].sender, resultArray[1].recipient, resultArray[1].content));
+            }
+            if (resultArray.length > 2) {
+                $("#message2").html(returnInsertHTML(resultArray[2].author, resultArray[2].sender, resultArray[2].recipient, resultArray[2].content));
+            }
+            if (resultArray.length > 3) {
+                $("#message3").html(returnInsertHTML(resultArray[3].author, resultArray[3].sender, resultArray[3].recipient, resultArray[3].content));
+            }
+            if (resultArray.length > 4) {
+                $("#message4").html(returnInsertHTML(resultArray[4].author, resultArray[4].sender, resultArray[4].recipient, resultArray[4].content));
+            }
+            if (resultArray.length > 5) {
+                $("#message5").html(returnInsertHTML(resultArray[5].author, resultArray[5].sender, resultArray[5].recipient, resultArray[5].content));
+            }
+            if (resultArray.length > 6) {
+                $("#message6").html(returnInsertHTML(resultArray[6].author, resultArray[6].sender, resultArray[6].recipient, resultArray[6].content));
+            }
+            if (resultArray.length > 7) {
+                $("#message7").html(returnInsertHTML(resultArray[7].author, resultArray[7].sender, resultArray[7].recipient, resultArray[7].content));
+            }
+            if (resultArray.length > 8) {
+                $("#message8").html(returnInsertHTML(resultArray[8].author, resultArray[8].sender, resultArray[8].recipient, resultArray[8].content));
+            }
+            if (resultArray.length > 9) {
+                $("#message9").html(returnInsertHTML(resultArray[9].author, resultArray[9].sender, resultArray[9].recipient, resultArray[9].content));
+            }
+        }
+
+        function updatePageNum(resp) {
+            var result = resp.result;
+            var arraySize = JSON.parse(result);
+            $("#pageButton").html(returnPageNavHTML(arraySize));
+        }
+
+        function returnInsertHTML(author, sender, recipient, content) {
+            // var ts = new Date(time * 1000);
+            // var newTime = ts.toLocaleString()
+            var html =
+                '<div>' +
+                // '<span class="ml-2">' + author + '</span>'+
+                '</div>' +
+                '<div class="mt-1 pt-2 pb-2 pl-3 pr-3 bg-primary text-white messageBox">' +
+                '<p style="float: left;"> To ' + recipient + ':</p>' + '<br/>' +
+                '<p style="float: center;">' + content + '</p>' +
+                '<p style="float: right;">By ' + sender + '</p>' + '<br/>' +
+                ' </div>';
+            return html;
+        }
+
+        function returnPageNavHTML(arraysize) {
+            var currentUri = window.location.href;
+            var url = new URL(currentUri);
+            var currentPage = parseInt(url.searchParams.get("page"),10);
+            if (isNaN(currentPage)) {
+                currentPage = 1;
+            }
+            var showingPage;
+            var startingPage;
+            var endingPage;
+            var lastPage = Math.floor((arraysize - 1) / 10) + 1;
+            if (arraysize < 50) {
+                showingPage = Math.floor((arraysize - 1) / 10) + 1;
+            } else {
+                showingPage = 5;
+            }
+            if (currentPage < 4) {
+                startingPage = 1;
+            } else {
+                startingPage = currentPage - 2;
+            }
+            if (currentPage + 2 >= lastPage) {
+                endingPage = lastPage;
+            } else {
+                endingPage = currentPage + 2;
+            }
+
+            var html =
+                '<nav>' +
+                '<ul class="pagination justify-content-center">';
+            if (currentPage == 1) {
+                html += '<li class="page-item disabled">';
+            } else {
+                html += '<li class="page-item">';
+            }
+            html += '<a class="page-link" ';
+            html += 'href="history.html?page=';
+            html += currentPage - 1 + '" ';
+            html += 'tabindex="-1">上一页</a> ';
+            html += '</li>';
+
+
+            //  html += '<a class="page-link" href="history.html?page="' + currentPage - 1 + '" tabindex="-1">Previous</a>'
+            //      + '</li>';
+            for (i = startingPage; i <= endingPage; i++) {
+                if (i == currentPage) {
+                    html +=
+                        '<li class="page-item active">' +
+                        '<span class="page-link">' +
+                        currentPage +
+                        '<span class="sr-only">(current)</span>' +
+                        ' </span>' +
+                        '</li>';
+                } else {
+                    html +=
+                        '<li class="page-item">' +
+                        '<a class="page-link" href="history.html?page=' + i + '">' + i + '</a>' +
+                        '</li>';
+                }
+            }
+            if (currentPage == lastPage) {
+                html += '<li class="page-item disabled">';
+            } else {
+                html += '<li class="page-item ">';
+            }
+            html += '<a class="page-link" ';
+            html += 'href="history.html?page=';
+            html += (parseInt(currentPage, 10) + 1) + '" ';
+            html += '>下一页</a> ';
+            html += '</li>';
+            html += '</ul>';
+            html += '</nav>';
+            return html;
+        }
+
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <a class="navbar-brand" href="./index.html">对不起留言板</a>
+
+        <ul class="nav nav-pills">
+            <li>
+                <a href="./search.html">
+                    <button type="button" class="btn btn-primary mr-2">搜索</button>
+                </a>
+            </li>
+            <li>
+                <a href="./history.html">
+                    <button type="button" class="btn btn-primary mr-2">历史</button>
+                </a>
+            </li>
+            <li>
+                <a href="https://blog.mouxuezha.com/" target="_blank">
+                    <button type="button" class="btn btn-primary mr-2">关于我们</button>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="ml-5 mt-3 mr-5 mb-3">
+        <div class="ml-5 mt-3 mr-5">
+            <div>
+                <div id="message0" class="mt-3"></div>
+                <div id="message1" class="mt-3"></div>
+                <div id="message2" class="mt-3"></div>
+                <div id="message3" class="mt-3"></div>
+                <div id="message4" class="mt-3"></div>
+                <div id="message5" class="mt-3"></div>
+                <div id="message6" class="mt-3"></div>
+                <div id="message7" class="mt-3"></div>
+                <div id="message8" class="mt-3"></div>
+                <div id="message9" class="mt-3"></div>
+            </div>
+        </div>
+        <div id="pageButton" class="mt-5">
+        </div>
+    </div>    
+<script src=lib/jquery-3.3.1.min.js></script>
+<script src=lib/nebPay.js></script>
+<script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+<script src=lib/nebulas.js></script>
+<script>
+
+    "use strict";
+
+    var dappAddress = "n1eD3DR6XCWRjuq8jXkrYJcmsGTgmzATVWE";
+
+    //here we use neb.js to call the "get" function to search from the Dictionary
+    var nebulas = require("nebulas"),
+        Account = nebulas.Account,
+        neb = new nebulas.Neb();
+    neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+
+    var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
+    var nebPay = new NebPay();
+
+    $(document).ready(function () {
+        var currentUri = window.location.href;
+        var url = new URL(currentUri);
+        var currentPage = parseInt(url.searchParams.get("page"),10);
+        if (isNaN(currentPage)) {
+            currentPage = 1;
+        }
+        var offset = (currentPage-1)*10;
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "foreach";
+        var callArgs = "[\"10\",\""+offset+"\"]";
+        nebPay.simulateCall(to, value, callFunction, callArgs, {
+            listener: updatePage      //指定回调函数
+        });
+
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "len";
+        var callArgs = "";
+        nebPay.simulateCall(to, value, callFunction, callArgs, {
+            listener: updatePageNum      //指定回调函数
+        });
+    });
+</script>
+</body>
+
+</html>
