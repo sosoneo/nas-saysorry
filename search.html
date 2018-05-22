@@ -12,6 +12,7 @@
     <link rel="icon" href="image/sorry.ico" type="image/vnd.microsoft.icon" />
     <title>搜索——对不起留言板——在区块链中记录你再也无法说出口的对不起</title>
     <link rel="stylesheet" href="lib/bootstrap-4.0.0-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/spin.css">
 </head>
 
 <body>
@@ -49,15 +50,15 @@
                 <hr>
                 <div class="mb-5">
                     <div class="form-group row mt-3">
-                        <label for="inputSender" class="col-sm-2 col-form-label">道歉者的名字: </label>
+                        <label for="inputAddress" class="col-sm-2 col-form-label">你的钱包地址: </label>
                         <div class="col-sm-10">
-                            <input type="text" maxlength="50"class="form-control" id="inputSender" placeholder="道歉者的名字">
+                            <input type="text" maxlength="50"class="form-control" id="inputAddress" placeholder="你的钱包地址">
                         </div>
                     </div>
                     <div class="form-group row mt-3">
-                        <label for="inputRecipient" class="col-sm-2 col-form-label">被道歉者的名字: </label>
+                        <label for="inputRecipient" class="col-sm-2 col-form-label">对方的名字: </label>
                         <div class="col-sm-10">
-                            <input type="text" maxlength="50"class="form-control" id="inputRecipient" placeholder="被道歉者的名字">
+                            <input type="text" maxlength="50"class="form-control" id="inputRecipient" placeholder="对方的名字">
                         </div>
                     </div>
                     <button type="button" id="submit" onclick="submitHandler()" class="btn btn-primary float-right">搜索</button>
@@ -69,66 +70,82 @@
 <script src=lib/nebPay.js></script>
 <script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
 <script src=lib/nebulas.js></script>
+<script src="lib/spin.js"></script>
 <script>
 
     "use strict";
 
-    var dappContactAddress = "n1eD3DR6XCWRjuq8jXkrYJcmsGTgmzATVWE";
-
-    //here we use neb.js to call the "get" function to search from the Dictionary
-    var nebulas = require("nebulas"),
-        Account = nebulas.Account,
-        neb = new nebulas.Neb();
-    neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
-
-    var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
+    //opts 可从网站在线制作
+    var opts = {            
+      lines: 13, // 花瓣数目
+      length: 20, // 花瓣长度
+      width: 10, // 花瓣宽度
+      radius: 30, // 花瓣距中心半径
+      corners: 1, // 花瓣圆滑度 (0-1)
+      rotate: 0, // 花瓣旋转角度
+      direction: 1, // 花瓣旋转方向 1: 顺时针, -1: 逆时针
+      color: '#333333', // 花瓣颜色
+      speed: 1, // 花瓣旋转速度
+      trail: 60, // 花瓣旋转时的拖影(百分比)
+      shadow: false, // 花瓣是否显示阴影
+      hwaccel: false, //spinner 是否启用硬件加速及高速旋转            
+      className: 'spinner', // spinner css 样式名称
+      zIndex: 2e9, // spinner的z轴 (默认是2000000000)
+      top: '50%', // spinner 相对父容器Top定位 单位 px
+      left: '50%'// spinner 相对父容器Left定位 单位 px
+    };
+    
+    var dappAddress = "n1n2BJQYHwfWLJfEtHfEhjGQsPd8UBnGZ2n";
+    var NebPay = require("nebpay");
     var nebPay = new NebPay();
+    var spinner = undefined;
 
     function submitHandler() {
-        if ($("#inputSender").val().length === 0) {
-            alert("Please input your name!");
+        if ($("#inputAddress").val().length === 0) {
+            alert("Please input your address!");
         } else if ($("#inputRecipient").val().length === 0) {
             alert("Please input other name!")
-        } else if ($("#inputSender").val().length > 100) {
-            alert("Your name limit 100!")
+        } else if ($("#inputAddress").val().length > 100) {
+            alert("Your address limit 100!")
         } else if ($("#inputRecipient").val().length > 100) {
             alert("Other name limit 100!")
         } else {
+            spinner = new Spinner(opts).spin($('body').get(0));//显示加载
             $('#content').text("");
-            var from = dappContactAddress
+            var from = dappAddress
             var value = "0";
             var nonce = "0"
             var gas_price = "1000000"
             var gas_limit = "2000000"
             var callFunction = "get";
-            var callArgs = "[\"" + $("#inputSender").val() + "\",\"" + $("#inputRecipient").val() + "\"]";
+            var callArgs = "[\"" + $("#inputAddress").val() + "\",\"" + $("#inputRecipient").val() + "\"]";
             console.log(callArgs);
             var contract = {
                 "function": callFunction,
                 "args": callArgs
             }
 
-            neb.api.call(from, dappContactAddress, value, nonce, gas_price, gas_limit, contract).then(function (resp) {
-            var result = resp.result;
-            
-            if (result === 'null') {
-                $('#searchBox').show();
-                $('#content').text("并没有找到该内容");
-                $('#sender').text("");
-                $('#recipient').text("");
-                return;
-            }
-            console.log(result);
-            result = JSON.parse(result);
-            $('#searchBox').show();
-            $("#content").text(result.content);
-            $('#sender').text("By " + result.sender);
-            $('#recipient').text("To " + result.recipient + ":");
+            nebPay.simulateCall(from, value, callFunction, callArgs, {
+                listener: function (resp) {
+                    spinner.spin();//移除加载
+                    var result = resp.result;
 
-        }).catch(function (err) {
-            console.log("error :" + err.message);
+                    if (result === 'null') {
+                        $('#searchBox').show();
+                        $('#content').text("并没有找到该内容");
+                        $('#sender').text("");
+                        $('#recipient').text("");
+                        return;
+                    }
+                    console.log(result);
+                    result = JSON.parse(result);
+                    $('#searchBox').show();
+                    $("#content").text(result.content);
+                    $('#sender').text("By " + result.sender);
+                    $('#recipient').text("To " + result.recipient + ":");
+                }
+            })
 
-        })
         }
     }
 

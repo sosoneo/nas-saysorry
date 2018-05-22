@@ -3,6 +3,7 @@
 var SorryItem = function(text){
     if(text){
         var obj = JSON.parse(text);
+        this.from = obj.from;
         this.sender = obj.sender;
         this.recipient = obj.recipient;
         this.content = obj.content;
@@ -40,11 +41,11 @@ TheSorry.prototype = {
         }
 
         if(sender.length > 100){
-            throw new Error("sender limit 20 length")
+            throw new Error("sender limit 100 length")
         }
 
         if(recipient.length > 100){
-            throw new Error("recipient limit 20 length")
+            throw new Error("recipient limit 100 length")
         }
 
         if(content.length > 5000){
@@ -52,33 +53,34 @@ TheSorry.prototype = {
         }
 
         var from = Blockchain.transaction.from;
-        var sorryItem = this.sorry.get(sender+recipient);
+        var sorryItem = this.sorry.get(from+recipient);
         if(sorryItem){
             throw new Error("sorrt has been occupied")
         }
 
         sorryItem = new SorryItem();
+        sorryItem.from = from;
         sorryItem.author = from;
         sorryItem.sender = sender;
         sorryItem.recipient = recipient;
         sorryItem.content = content;
 
         var index = this.size;
-        this.arrayMap.put(index, sender+recipient);
-        this.dataMap.put(sender+recipient, sorryItem);
+        this.arrayMap.put(index, from+recipient);
+        this.dataMap.put(from+recipient, sorryItem);
         this.size += 1;
 
-        this.sorry.put(sender+recipient, sorryItem);
+        this.sorry.put(from+recipient, sorryItem);
     },
 
-    get:function(sender,recipient){
-        if(!sender){
-            throw new Error("empty sender")
+    get:function(from,recipient){
+        if(!from){
+            throw new Error("empty from")
         }
         if(!recipient){
             throw new Error("empty recipient")
         }
-        return this.sorry.get(sender+recipient);
+        return this.sorry.get(from+recipient);
     },
 
     len:function(){
